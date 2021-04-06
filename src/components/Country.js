@@ -14,7 +14,7 @@ const CountryStyled = styled.div`
     object-fit: cover;
   }
   .details {
-    padding: 2.4rem 2.4rem 5rem;
+    padding: 2.4rem 2.4rem 4rem;
   }
   h2 {
     margin: 0;
@@ -23,7 +23,6 @@ const CountryStyled = styled.div`
     margin-bottom: 0.8rem;
     line-height: 0.8;
     font-weight: 300;
-    /* font-weight: 600; */
     span {
       font-weight: 600;
     }
@@ -33,7 +32,7 @@ const CountryStyled = styled.div`
 function Country({ flag, name, population, region, capital }) {
   return (
     <CountryStyled>
-      <img src={flag} alt="" />
+      <img loading="lazy" src={flag} alt="" />
       <div className="details">
         <h2>{name}</h2>
         <p>
