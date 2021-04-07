@@ -1,44 +1,74 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import Country from "./Country";
+import { useSelector, useDispatch } from "react-redux";
 
 const CountryListStyled = styled.div`
-  display: flex;
+  display: grid;
+  grid-row-gap: 2.3em;
+  /* grid-template-columns: 1fr 1fr 1fr; */
+  background: var(--background);
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 3.5rem;
-  max-width: 1440px;
-  background-color: var(--bg-gray);
-  margin: 0 auto;
-  padding: 6rem 2rem;
+  border: 1px solid red;
+  padding: 4em 2em;
 `;
-
 function CountryList() {
+  const [inputValue, setInputValue] = useState("");
   const dispatch = useDispatch();
-  // useSelector recibe por parámetro una función, que a su vez recibe todo el estado de la aplicación (ese estado global)
-  const countryList = useSelector((state) => state.countryList);
-  console.log("El estado total es:", countryList);
+  const countryListByName = useSelector((state) => state.countryListByName);
+  const countryList = useSelector((state) => {
+    if ("" !== state.filterByRegion) {
+      return state.coutryFilteredByRegion;
+    }
+    if (countryListByName.length > 0) {
+      return countryListByName;
+    }
 
-  // const [countryList, setCountryList] = useState([]);
+    return state.countryList;
+  });
+  console.log("el estado total de mi app es", countryList);
+  // const [countryList, setCountryList] = useState([])
   useEffect(() => {
     fetch("https://restcountries.eu/rest/v2/all")
-      .then((response) => response.json())
+      .then((response) => {
+        return response.json();
+      })
       .then((list) => {
-        // Esta acción es enviada al reducer (ubicado en APP)
         dispatch({
           type: "SET_COUNTRY_LIST",
           payload: list,
         });
+        // setCountryList(data)
         console.log(list.length);
       })
-
-      .catch(() => console.log("Hubo un error"));
-  }, []);
-
+      .catch(() => {
+        console.log("hubo un error, que dolor que dolo que pena");
+      });
+  }, [dispatch]);
+  const filterByName = (e) => {
+    setInputValue(e.target.value);
+    dispatch({
+      type: "SET_COUNTRY_BY_NAME",
+      payload: e.target.value,
+    });
+  };
+  const clearInput = () => {
+    dispatch({
+      type: "SET_COUNTRY_BY_NAME",
+      payload: "",
+    });
+    setInputValue("");
+  };
   return (
     <CountryListStyled>
-      {countryList.map(({ flag, name, population, region, capital }) => {
+      <input type="text" value={inputValue} onChange={filterByName} />
+      {inputValue && <button onClick={clearInput}>X</button>}
+      {countryListByName.length === 0 && inputValue && (
+        <p>
+          <strong>{inputValue}</strong> Not found in countries
+        </p>
+      )}
+      {countryList.map(({ name, flag, population, capital, region }) => {
         return (
           <Country
             flag={flag}
@@ -53,5 +83,4 @@ function CountryList() {
     </CountryListStyled>
   );
 }
-
 export default CountryList;
